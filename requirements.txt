@@ -1,0 +1,20 @@
+# Core numerical / ML
+numpy
+pandas
+scikit-learn
+matplotlib
+
+# Homomorphic encryption (CKKS)
+tenseal
+
+# Vision experiments (PathMNIST, PneumoniaMNIST)
+tensorflow
+medmnist
+
+# Clinical-text experiment (frozen BioClinicalBERT on MIMIC-III)
+torch
+torchvision
+transformers
+
+# Notebook environment
+jupyterlab
