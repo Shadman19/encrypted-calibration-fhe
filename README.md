@@ -1,7 +1,7 @@
 # CKKS Encrypted Scoring and Post-Deployment Calibration Experiments
 
 Research notebooks associated with post-deployment calibration and the
-**ICNC 2026** paper *Privacy-Preserving Post-Deployment Model Calibration with
+**ICNC 2026** paper *Privacy-Preserving Post Deployment Model Calibration with
 Fully Homomorphic Encryption*. The paper citation is retained below; repository
 implementation scope is stated separately here.
 
@@ -106,14 +106,18 @@ not establish a combined encrypted-calibration performance measurement.
 
 If you use this code, please cite the ICNC 2026 paper:
 
+Paper: [publisher record](https://doi.org/10.1109/ICNC68183.2026.11416991) | [public PDF](https://www.cs.sjsu.edu/~melody/Pathan_ICNC26_paper.pdf)
+
 ```bibtex
 @inproceedings{pathan2026encryptedcalibration,
-  title     = {Privacy-Preserving Post-Deployment Model Calibration with Fully Homomorphic Encryption},
+  title     = {Privacy-Preserving Post Deployment Model Calibration with Fully Homomorphic Encryption},
   author    = {Pathan, Shadman Mahmood Khan and Wang, Qianlong and Takeshita, Jonathan and Imran, Sakan Binte and Shetty, Sachin},
   booktitle = {2026 International Conference on Computing, Networking and Communications (ICNC)},
   year      = {2026},
   pages     = {1--6},
-  publisher = {IEEE}
+  publisher = {IEEE},
+  doi       = {10.1109/ICNC68183.2026.11416991},
+  url       = {https://doi.org/10.1109/ICNC68183.2026.11416991}
 }
 ```
 
@@ -131,6 +135,4 @@ Assistant Professor, Department of Electrical & Computer Engineering, Old Domini
 
 ## License
 
-See [`LICENSE`](LICENSE). *(Add or confirm the license before making the repo
-public — MIT is a common default for academic reference code, but check with
-your advisor/co-authors first.)*
+See [`LICENSE`](LICENSE) for the MIT license.
