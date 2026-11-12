@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this implementation in your research, please cite the associated ICNC 2026 paper."
+type: software
+title: "CKKS Encrypted Scoring and Post-Deployment Calibration Experiments"
+authors:
+  - family-names: Pathan
+    given-names: Shadman Mahmood Khan
+    orcid: "https://orcid.org/0000-0002-6271-2359"
+repository-code: "https://github.com/Shadman19/encrypted-calibration-fhe"
+preferred-citation:
+  type: conference-paper
+  title: "Privacy-Preserving Post Deployment Model Calibration with Fully Homomorphic Encryption"
+  authors:
+    - family-names: Pathan
+      given-names: Shadman Mahmood Khan
+    - family-names: Wang
+      given-names: Qianlong
+    - family-names: Takeshita
+      given-names: Jonathan
+    - family-names: Imran
+      given-names: Sakan Binte
+    - family-names: Shetty
+      given-names: Sachin
+  collection-title: "2026 International Conference on Computing, Networking and Communications (ICNC)"
+  year: 2026
+  start: "1"
+  end: "6"
+  doi: "10.1109/ICNC68183.2026.11416991"
+  url: "https://doi.org/10.1109/ICNC68183.2026.11416991"
