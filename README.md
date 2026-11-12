@@ -1,36 +1,34 @@
-# Lightweight Ciphertext-Only Calibration for Collaborative Learning in Heterogeneous Environments
+# CKKS Encrypted Scoring and Post-Deployment Calibration Experiments
 
-Post-deployment model calibration performed **entirely under CKKS homomorphic
-encryption**. When a deployed classifier misclassifies a sample at a target
-site, a peer institution corrects **only the final classifier layer** in the
-encrypted domain — no raw data, logits, gradients, or plaintext parameters are
-ever exchanged, and no central server is required.
+Research notebooks associated with post-deployment calibration and the
+**ICNC 2026** paper *Privacy-Preserving Post-Deployment Model Calibration with
+Fully Homomorphic Encryption*. The paper citation is retained below; repository
+implementation scope is stated separately here.
 
-This repository accompanies our work on encrypted post-deployment calibration
-and extends the preliminary version presented at **ICNC 2026** *(Privacy-Preserving
-Post-Deployment Model Calibration with Fully Homomorphic Encryption)*.
+> **Reviewed implementation scope:** in
+> `notebooks/LLM_MIMIC_Encrypted_Calibration_SingleCell.ipynb`, the optional
+> TenSEAL step encrypts a feature vector, computes ciphertext–plaintext dot
+> products, and immediately decrypts the resulting scores. The subsequent
+> Chebyshev probability calculation and weight/bias calibration update use
+> plaintext NumPy arrays. This notebook does not implement an entirely
+> ciphertext-only training or calibration update.
 
-> **Status:** Reference release. The notebooks below reproduce the core
-> experiments. Additional utilities, a packaged environment file, and sample
-> outputs will be added in upcoming updates.
+## Implementation boundary in the reviewed MIMIC notebook
 
----
+- A local TenSEAL context encrypts the selected feature vector for an optional
+  scoring/timing step.
+- Each encrypted dot product is decrypted before adding the plaintext bias and
+  displaying the warmup logits.
+- `calibrate_once` computes `cheb_softmax(f @ W + b, ...)`, forms a plaintext
+  error, and updates plaintext `W` and `b` arrays.
+- The scoring/timing step and the plaintext calibration loop must be reported
+  separately. An encrypted scoring demonstration does not establish an
+  end-to-end encrypted update or an institution-to-institution deployment.
 
-## Key idea
-
-- A querying site (B) encrypts its penultimate feature vector `φ(x)` under its
-  own CKKS key and sends the ciphertext to a peer (A).
-- Site A runs **ciphertext–plaintext** inference with its classifier head and a
-  **Chebyshev polynomial approximation of softmax** (add / multiply / rotate only —
-  no exponentials, no division, no bootstrapping).
-- Site B decrypts locally, checks `argmax(ŷ) != y`, and — only on a
-  misclassification — returns an encrypted one-hot label so A can compute the
-  encrypted error `δ = y − ŷ` and apply a bounded last-layer update.
-- Secret keys never leave the data-owning site.
-
-The design deliberately stays within a shallow multiplicative depth (≤ 3) so it
-runs without CKKS bootstrapping, completing encrypted inference + calibration in
-roughly **2–3 s per corrected sample on CPU**.
+These statements describe the reviewed code, not a re-evaluation of the paper's
+protocol or all other implementations. The PathMNIST and PneumoniaMNIST notebooks
+have not been re-audited for their encryption and trust boundaries in this review.
+No combined encrypted-inference-and-calibration runtime is established here.
 
 ---
 
@@ -38,9 +36,9 @@ roughly **2–3 s per corrected sample on CPU**.
 
 | Path | Description |
 |------|-------------|
-| `notebooks/PathMNIST_Heterogeneous.ipynb` | 9-class pathology tiles. Identical-model and different-backbone heterogeneity; B→A encrypted calibration. |
-| `notebooks/Pneumonia_MNIST_Heterogeneous.ipynb` | Binary chest X-ray under maximal class skew. Identical-model and different-backbone settings. |
-| `notebooks/LLM_MIMIC_Encrypted_Calibration_SingleCell.ipynb` | Clinical notes with frozen **BioClinicalBERT** embeddings. End-to-end training, encrypted calibration, multi-seed + Chebyshev-degree sweep. |
+| `notebooks/PathMNIST_Heterogeneous.ipynb` | Pathology experiment notebook; encryption and adaptation boundaries require separate review. |
+| `notebooks/Pneumonia_MNIST_Heterogeneous.ipynb` | Chest X-ray experiment notebook; encryption and adaptation boundaries require separate review. |
+| `notebooks/LLM_MIMIC_Encrypted_Calibration_SingleCell.ipynb` | Clinical-note experiment with frozen **BioClinicalBERT** embeddings, optional CKKS dot-product scoring/decryption, and plaintext calibration and evaluation. |
 
 Each notebook is self-contained. The two MedMNIST notebooks have a "Same
 Models" section (identical backbones) and a "Different Models" section
@@ -52,20 +50,18 @@ See [`TUTORIAL.md`](TUTORIAL.md) for a step-by-step walkthrough.
 
 ## Encryption configuration
 
-The encrypted layer is implemented with [TenSEAL](https://github.com/OpenMined/TenSEAL)
-(SEAL backend). Default CKKS context used in the notebooks:
+The reviewed MIMIC notebook uses [TenSEAL](https://github.com/OpenMined/TenSEAL)
+(SEAL backend) for its optional encrypted dot-product step, with this CKKS context:
 
 ```python
 poly_modulus_degree = 8192
 coeff_mod_bit_sizes = [60, 40, 40, 60]
-global_scale        = 2 ** 40      # ~200-bit modulus chain, multiplicative depth <= 3
+global_scale        = 2 ** 40
 ```
 
-- **Chebyshev degree:** swept over `{2, 3, 4, 6}`; degree **4** is used as the
-  default (best accuracy/runtime trade-off under the noise budget).
-- **Calibration loop:** learning rate `η ∈ {0.05, 0.1}`, `T_max = 20` iterations,
-  early stop when `‖δ‖₂ ≤ 1e-3`.
-- **Seeds:** `[42, 43, 44, 45, 46]` for multi-seed aggregates.
+Chebyshev degree, calibration steps, learning rate and seeds are configured in
+the individual notebook cells. Inspect the selected cell's current settings;
+do not assume one common set of defaults across experiments.
 
 These are tunable, not intrinsic to the method — larger feature dimensions or
 class counts may require adjusting the ring dimension and modulus sizes.
@@ -87,9 +83,9 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Experiments in the paper were run on a CPU node (32-core AMD EPYC 7502,
-128 GB RAM). TenSEAL/CKKS execution is CPU-based; a GPU only accelerates the
-plaintext CNN / BERT stages.
+Distinguish the TenSEAL scoring step from plaintext representation training,
+calibration and evaluation when reporting hardware or runtime. This README does
+not establish a combined encrypted-calibration performance measurement.
 
 ---
 
